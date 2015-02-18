@@ -820,9 +820,9 @@ class icit_srdb {
 				$report[ 'tables' ]++;
 
 				// get primary key and columns
-				list( $primary_key, $columns ) = $this->get_columns( $table );
+				list( $primary_keys, $columns ) = $this->get_columns( $table );
 
-				if ( $primary_key === null ) {
+				if ( empty($primary_keys) ) {
 					$this->add_error( "The table \"{$table}\" has no primary key. Changes will have to be made manually.", 'results' );
 					continue;
 				}
@@ -864,7 +864,7 @@ class icit_srdb {
 
 							$edited_data = $data_to_fix = $row[ $column ];
 
-							if ( $primary_key == $column ) {
+							if ( in_array($column, $primary_keys) ) {
 								$where_sql[] = "`{$column}` = " . $this->db_escape( $data_to_fix );
 								continue;
 							}
@@ -949,7 +949,7 @@ class icit_srdb {
 
 	public function get_columns( $table ) {
 
-		$primary_key = null;
+		$primary_keys = array( );
 		$columns = array( );
 
 		// Get a list of columns in this table
@@ -960,11 +960,11 @@ class icit_srdb {
 			while( $column = $this->db_fetch( $fields ) ) {
 				$columns[] = $column[ 'Field' ];
 				if ( $column[ 'Key' ] == 'PRI' )
-					$primary_key = $column[ 'Field' ];
+					$primary_keys[] = $column[ 'Field' ];
 			}
 		}
 
-		return array( $primary_key, $columns );
+		return array( $primary_keys, $columns );
 	}
 
 
